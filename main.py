@@ -1,44 +1,147 @@
 import streamlit as st
 
-# 페이지 기본 설정
-st.set_page_config(page_title="MBTI 진로 탐색", layout="wide")
+# 🌈 페이지 설정
+st.set_page_config(page_title="🌟 MBTI 진로 탐색 전체 버전", layout="wide", page_icon="🌟")
 
-# 제목
-st.title("🌱 MBTI 기반 진로 탐색 웹앱")
+# 💫 헤더 & 스타일
+st.markdown("""
+<div style="text-align:center; padding: 10px 0 0;">
+  <h1 style="font-size: 42px;">🌟✨ MBTI 기반 진로 탐색 ✨🌟</h1>
+  <p style="font-size: 18px;">이모지 가득! 당신의 성향에 꼭 맞는 진로를 찾아보세요 🚀🌈</p>
+</div>
+""", unsafe_allow_html=True)
 
-# MBTI 선택
-st.subheader("1. 당신의 MBTI를 선택하세요!")
-mbti_types = [
-    "ISTJ", "ISFJ", "INFJ", "INTJ",
-    "ISTP", "ISFP", "INFP", "INTP",
-    "ESTP", "ESFP", "ENFP", "ENTP",
-    "ESTJ", "ESFJ", "ENFJ", "ENTJ"
+# 🔮 MBTI 선택 (이모지 라벨)
+mbti_options = [
+    "ISTJ 🛠️", "ISFJ 🤲", "INFJ 🔮", "INTJ 🧠",
+    "ISTP ⚙️", "ISFP 🎨", "INFP 💫", "INTP 📚",
+    "ESTP 🏄", "ESFP 🎉", "ENFP 🌟", "ENTP 🤹",
+    "ESTJ 🏛️", "ESFJ 💖", "ENFJ 🌍", "ENTJ 👑"
 ]
-user_mbti = st.selectbox("MBTI 유형", mbti_types)
+col1, col2 = st.columns([1,2])
+with col1:
+    user_mbti_label = st.selectbox("✨ MBTI 유형을 선택하세요!", mbti_options, index=10)
+clean_mbti = user_mbti_label.split()[0]
 
-# MBTI별 진로 추천 데이터
-career_dict = {
-    "INTJ": ["전략 컨설턴트", "데이터 과학자", "연구원"],
-    "ENFP": ["광고/마케팅", "창업가", "예술가"],
-    "ISTJ": ["회계사", "공무원", "엔지니어"],
-    "ESFP": ["배우", "디자이너", "이벤트 기획자"],
-    # ... 나머지 유형도 추가 가능
+# 📚 MBTI 데이터베이스 (16유형 전부)
+traits = {
+    "ISTJ": "현실적·책임감·체계적 🧭",
+    "ISFJ": "배려심·성실·헌신 🤍",
+    "INFJ": "통찰력·가치지향·의미추구 🔮",
+    "INTJ": "전략적·분석적·독립적 🧠",
+    "ISTP": "문제해결·실용·유연 ⚙️",
+    "ISFP": "감수성·온화·자율 🎨",
+    "INFP": "이상주의·공감·창의 💫",
+    "INTP": "논리·탐구·아이디어 📚",
+    "ESTP": "액션·도전·즉흥 🏄",
+    "ESFP": "사교·에너지·경험중시 🎉",
+    "ENFP": "열정·아이디어·사람지향 🌟",
+    "ENTP": "발상전환·토론·혁신 🤹",
+    "ESTJ": "조직·실행·리더십 🏛️",
+    "ESFJ": "협력·서비스·조화 💖",
+    "ENFJ": "리더십·코칭·비전 🌍",
+    "ENTJ": "결단·목표지향·전략 👑",
 }
 
-# 결과 출력
-st.subheader("2. 추천 진로")
-if user_mbti in career_dict:
-    st.success(f"👉 {user_mbti} 유형에게 어울리는 진로는:")
-    for job in career_dict[user_mbti]:
-        st.write(f"- {job}")
-else:
-    st.warning("아직 데이터가 부족합니다. 업데이트 예정!")
+careers = {
+    "ISTJ": ["📑 회계사", "🏗️ 품질관리/생산관리", "🧮 재무/세무", "🏢 공무원", "🔒 감사/컴플라이언스", "🛡️ 보안/리스크"],
+    "ISFJ": ["🏥 간호사/의료지원", "👩‍🏫 유아/초중 교사", "👥 HR/총무", "🤝 사회복지사", "🏦 고객지원/CS", "🏫 학사행정"],
+    "INFJ": ["🧠 심리상담사", "🖋️ 작가/에디터", "🎓 교육기획", "🌿 비영리/사회혁신", "🎨 브랜딩/콘텐츠 전략", "🧑‍⚖️ 공익 관련 직무"],
+    "INTJ": ["📊 데이터 사이언티스트", "🧭 전략기획/컨설팅", "🔬 R&D 연구원", "🧱 제품/프로덕트 매니저(PM)", "🧠 AI/ML 엔지니어", "🏦 투자/리서치"],
+    "ISTP": ["🛠️ 기계/전기 엔지니어", "🧪 필드 엔지니어", "🧰 DevOps/SRE", "🛰️ 드론/로보틱스", "🚓 포렌식/보안 엔지니어", "🛠️ 테크니션"],
+    "ISFP": ["🎨 그래픽/UX 디자이너", "📷 포토/영상", "🏥 작업치료/물리치료", "🌿 플로리스트/공예", "🏡 인테리어", "🍴 푸드 콘텐츠"],
+    "INFP": ["📝 작가/콘텐츠 크리에이터", "🎭 문화예술 기획", "🌍 국제개발/NGO", "🧑‍🏫 교육/튜터", "💬 커뮤니티 매니저", "🧪 UX 리서처"],
+    "INTP": ["🧮 알고리즘/리서치 엔지니어", "🔎 데이터/지식관리", "🧪 학술연구", "🧰 백엔드/시스템 설계", "🧩 특허/기술분석", "📐 아키텍트"],
+    "ESTP": ["🏃 세일즈/BD", "📣 퍼포먼스 마케터", "🚀 스타트업 운영", "🛠️ 현장/영업기술", "🎬 이벤트/프로덕션", "📈 트레이딩"],
+    "ESFP": ["🎤 배우/공연/예능", "🎧 크리에이터/MCN", "🛍️ 리테일/브랜드 앰버서더", "🎪 이벤트 플래너", "✈️ 항공/승무", "🍽️ F&B 매니지먼트"],
+    "ENFP": ["💡 브랜딩/캠페인 기획", "🧑‍🚀 창업/프로덕트 초기팀", "🤝 PR/커뮤니케이션", "🎓 교육콘텐츠", "🌱 소셜벤처", "🎮 게임 기획"],
+    "ENTP": ["🧠 비즈니스 전략/신사업", "🧪 프로덕트 매니저", "📰 미디어/저널리즘", "⚖️ 정책기획/싱크탱크", "🤝 벤처캐피탈/액셀러레이터", "🧩 컨설팅"],
+    "ESTJ": ["📦 운영/SCM", "🏢 기업관리/총괄", "📋 프로젝트 매니저", "🏗️ 건설/현장관리", "🧾 감사/감리", "🧭 조직문화/규정"],
+    "ESFJ": ["👩‍🍳 서비스/호스피탈리티", "🧑‍🏫 교직/교육운영", "👥 HRBP/채용", "💬 커뮤니티/파트너십", "🏥 병원 코디/의료행정", "🛍️ 리테일 매니저"],
+    "ENFJ": ["🎤 코치/멘토/강사", "🤝 조직개발/HRD", "🌏 CSR/ESG", "📣 대외협력/홍보", "🎯 프로그램 디렉터", "🏫 교육 리더십"],
+    "ENTJ": ["👑 경영/총괄 리더", "📈 투자/PE/IB", "🧭 전략/거버넌스", "🧱 대규모 PM/프로그램 매니저", "🚀 스케일업 운영", "⚙️ 기술사업화"],
+}
 
-# 추가 기능
-with st.expander("🔎 MBTI 유형별 특징 보기"):
-    st.write("""
-    - **ISTJ**: 철저하고 책임감이 강함  
-    - **ENFP**: 창의적이고 열정적  
-    - **INTJ**: 전략적이고 분석적  
-    - **ESFP**: 사교적이고 즉흥적  
+majors = {
+    "ISTJ": "경영/회계/통계/산업공학 📐",
+    "ISFJ": "간호/교육/행정/심리 🤍",
+    "INFJ": "심리/교육/철학/미디어/사회복지 🔮",
+    "INTJ": "수학/컴퓨터/공학/경영전략 🧠",
+    "ISTP": "기계/전기/컴공/산업디자인 ⚙️",
+    "ISFP": "시각디자인/예술/치료/공예 🎨",
+    "INFP": "문예창작/언론정보/심리/국제학 💫",
+    "INTP": "컴공/수학/자연과학/철학 📚",
+    "ESTP": "경영/마케팅/스포츠/무역 🏄",
+    "ESFP": "공연예술/미디어/관광/서비스 🎉",
+    "ENFP": "광고홍보/미디어/교육/사회과학 🌟",
+    "ENTP": "경영/경제/정치외교/법/컴공 🤹",
+    "ESTJ": "경영/행정/공학/건설 🏛️",
+    "ESFJ": "교육/간호/호텔관광/사회복지 💖",
+    "ENFJ": "교육/심리/경영/국제개발 🌍",
+    "ENTJ": "경영/경제/산업공학/정책 👑",
+}
+
+tips = {
+    "ISTJ": "📅 체크리스트·표준절차로 성과 극대화! 가끔은 ‘완벽보다 적시’를! ⏱️",
+    "ISFJ": "🙌 도움을 주되, 스스로의 경계도 지키기. 성과 기록 습관 추천 🗂️",
+    "INFJ": "🎯 가치-영향 연결 끈을 유지하고, 실행 파트너와 협업하기 🤝",
+    "INTJ": "🗺️ 장기 전략 훌륭! 주기적 피드백 루프로 사용자 감각 보완 🔁",
+    "ISTP": "🔧 직접 만져보며 학습! 문서화로 노하우를 자산화 📓",
+    "ISFP": "🌿 창의성 유지 + 데드라인 관리 툴로 안정감 더하기 ⏳",
+    "INFP": "✨ 의미 있는 프로젝트에 몰입! 작은 마감으로 추진력 확보 ✅",
+    "INTP": "🧩 아이디어 훌륭! 프로토타입→실험→검증 사이클로 전개 🔬",
+    "ESTP": "⚡ 현장감·결단력 최고! 리스크 관리 체크포인트 만들기 🛡️",
+    "ESFP": "🎈 사람 에너지 활용! 예산·일정 관리 파트너와 콤보 🤝",
+    "ENFP": "🌈 다양성 강점! 우선순위 3개만 남기고 실행 루틴 만들기 🗂️",
+    "ENTP": "🚀 실험가 기질! MVP-가설검증-피벗 구조로 속도와 품질 잡기 🔁",
+    "ESTJ": "🏗️ 프로세스 최강! 변화관리 커뮤니케이션에 더 공 들이기 🗣️",
+    "ESFJ": "💞 관계지향 강점! 데이터 기반 피드백 도입해 설득력 UP 📊",
+    "ENFJ": "🌍 비전 제시 굿! 일정·역할 명확화로 팀 번아웃 예방 🧭",
+    "ENTJ": "🧠 대담한 목표 OK! 디테일 오너를 세워 마감 품질 확보 🔒",
+}
+
+# 🎯 메인 카드 출력
+with col2:
+    st.markdown(f"""
+    ### {clean_mbti} — **{traits[clean_mbti]}**
     """)
+    cc1, cc2, cc3 = st.columns(3)
+    with cc1:
+        st.markdown("#### 🎓 추천 전공/배경")
+        st.info(majors[clean_mbti])
+    with cc2:
+        st.markdown("#### 💼 추천 진로 Top 6")
+        st.success(" \n".join([f"- {c}" for c in careers[clean_mbti]]))
+    with cc3:
+        st.markdown("#### 🔧 커리어 팁")
+        st.warning(tips[clean_mbti])
+
+# 📊 추가 섹션
+st.markdown("---")
+exp1, exp2 = st.columns(2)
+
+with exp1:
+    with st.expander("🌍 모든 유형 한눈에 보기 (특징 요약)"):
+        grid = ""
+        order = ["ISTJ","ISFJ","INFJ","INTJ","ISTP","ISFP","INFP","INTP","ESTP","ESFP","ENFP","ENTP","ESTJ","ESFJ","ENFJ","ENTJ"]
+        for i, t in enumerate(order, 1):
+            grid += f"**{t}** — {traits[t]}  \n"
+            if i % 4 == 0:
+                grid += "\n"
+        st.markdown(grid)
+
+with exp2:
+    with st.expander("💼 모든 유형별 추천 진로 전체 보기"):
+        text = ""
+        for t, lst in careers.items():
+            text += f"**{t}**  \n" + " · ".join(lst) + "\n\n"
+        st.markdown(text)
+
+# 🧭 푸터
+st.markdown("""
+<div style="text-align:center; font-size:14px; opacity:.8">
+  <hr/>
+  💎 Made with Streamlit · 이모지 파워로 커리어 탐험을 더 재미있게! 💎
+</div>
+""", unsafe_allow_html=True)
+
