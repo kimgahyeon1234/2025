@@ -1,97 +1,87 @@
 import streamlit as st
 
-st.set_page_config(page_title="응급 상황 대처 가이드", page_icon="🚨", layout="centered")
+st.set_page_config(page_title="응급처치 퀴즈", page_icon="🚑", layout="centered")
 
-st.title("🚨 응급 상황 대처 가이드")
-st.write("위급한 순간, 당황하지 말고 아래 상황을 선택하세요.")
+st.title("🚨 응급 상황 대처 퀴즈")
+st.write("응급 상황에서 올바른 행동을 퀴즈로 배워보세요!")
 
-# 응급 상황 선택
-situation = st.selectbox(
-    "⚡ 어떤 상황인가요?",
-    [
-        "🔥 화재 발생",
-        "🤕 심정지 / 심폐소생술 필요",
-        "💉 출혈 (과다출혈)",
-        "🚗 교통사고",
-        "🏃 도난 / 강도",
-        "👊 폭행 목격",
-        "😷 호흡 곤란",
-        "🏠 가스 누출",
-        "🐶 동물에 물림"
+# 상황별 퀴즈 데이터
+scenarios = {
+    "🚗 교통사고": [
+        {
+            "question": "교통사고 현장에서 가장 먼저 해야 할 일은 무엇일까요?",
+            "options": ["부상자에게 즉시 이동시키기", "2차 사고 방지를 위해 안전 조치하기", "사진 찍기"],
+            "answer": "2차 사고 방지를 위해 안전 조치하기",
+            "explanation": "🚧 먼저 비상등을 켜고, 2차 사고를 방지하기 위해 안전 조치를 해야 합니다."
+        },
+        {
+            "question": "부상자가 의식이 없는 경우, 가장 먼저 확인해야 할 것은?",
+            "options": ["호흡과 맥박", "출혈 여부", "휴대폰으로 신고"],
+            "answer": "호흡과 맥박",
+            "explanation": "💨 의식이 없으면 즉시 호흡과 맥박을 확인해야 합니다."
+        }
+    ],
+    "🔥 화상": [
+        {
+            "question": "뜨거운 물에 화상을 입었을 때 가장 먼저 해야 할 일은?",
+            "options": ["얼음을 대기", "흐르는 찬물에 10분 이상 식히기", "연고 바르기"],
+            "answer": "흐르는 찬물에 10분 이상 식히기",
+            "explanation": "💧 화상 시 즉시 흐르는 찬물에 충분히 식혀주는 것이 가장 중요합니다."
+        },
+        {
+            "question": "화상 부위에 물집이 생겼다면 어떻게 해야 할까요?",
+            "options": ["터트린다", "냅둔다", "바늘로 소독 후 제거한다"],
+            "answer": "냅둔다",
+            "explanation": "⚠️ 물집은 감염 방지 역할을 하므로 절대 터뜨리면 안 됩니다."
+        }
+    ],
+    "🤕 심정지": [
+        {
+            "question": "심정지 환자를 발견하면 가장 먼저 해야 할 일은?",
+            "options": ["환자를 흔들어 깨운다", "119에 신고한다", "심폐소생술을 바로 시작한다"],
+            "answer": "환자를 흔들어 깨운다",
+            "explanation": "👋 먼저 의식이 있는지 확인해야 합니다."
+        },
+        {
+            "question": "심정지가 확인되면 다음 단계는 무엇일까요?",
+            "options": ["AED 가져오기", "심폐소생술(CPR) 시작", "환자를 편히 눕히기"],
+            "answer": "119에 신고한다",
+            "explanation": "📞 의식이 없으면 즉시 119에 신고하고 구조를 요청해야 합니다."
+        }
     ]
-)
+}
 
-# 상황별 대처법 안내
-if situation == "🔥 화재 발생":
-    st.error("📞 119에 즉시 신고하세요!")
-    st.markdown("""
-    1. 불이 난 위치를 정확히 신고합니다.  
-    2. 엘리베이터는 절대 사용하지 말고 계단을 이용하세요.  
-    3. 젖은 수건으로 입과 코를 막고 낮은 자세로 대피하세요.  
-    """)
+# 사용자 상황 선택
+situation = st.selectbox("⚡ 어떤 상황을 학습할까요?", list(scenarios.keys()))
+
+# 진행 상태 저장용 세션
+if "step" not in st.session_state:
+    st.session_state.step = 0
+if "score" not in st.session_state:
+    st.session_state.score = 0
+
+questions = scenarios[situation]
+
+# 퀴즈 진행
+if st.session_state.step < len(questions):
+    q = questions[st.session_state.step]
+    st.subheader(f"문제 {st.session_state.step+1}️⃣")
+    st.write(q["question"])
     
-elif situation == "🤕 심정지 / 심폐소생술 필요":
-    st.error("📞 즉시 119에 신고 후, 주변에 AED(자동심장충격기)가 있는지 확인하세요!")
-    st.markdown("""
-    1. 의식과 호흡을 확인합니다.  
-    2. 심정지가 의심되면 **흉부압박 30회 + 인공호흡 2회** 반복합니다.  
-    3. AED가 도착하면 안내 음성을 따라 사용하세요.  
-    """)
+    choice = st.radio("선택하세요:", q["options"], key=f"q{st.session_state.step}")
+    
+    if st.button("제출", key=f"submit{st.session_state.step}"):
+        if choice == q["answer"]:
+            st.success("✅ 정답입니다!")
+            st.session_state.score += 1
+        else:
+            st.error("❌ 오답입니다!")
+            st.info(f"👉 정답: {q['answer']}")
+        st.write(q["explanation"])
+        st.session_state.step += 1
+else:
+    st.success(f"🎉 모든 문제를 완료했습니다! 점수: {st.session_state.score}/{len(questions)}")
+    if st.button("🔄 다시 시작"):
+        st.session_state.step = 0
+        st.session_state.score = 0
 
-elif situation == "💉 출혈 (과다출혈)":
-    st.warning("🩸 과다출혈 시, 지혈이 최우선입니다.")
-    st.markdown("""
-    1. 멸균 거즈나 깨끗한 천으로 출혈 부위를 강하게 압박합니다.  
-    2. 출혈이 심하면 상처 부위를 심장보다 높게 들어올립니다.  
-    3. 지혈이 안되면 **즉시 119에 신고**하세요.  
-    """)
-
-elif situation == "🚗 교통사고":
-    st.error("📞 사고 발생 시, 인명 구조가 최우선입니다!")
-    st.markdown("""
-    1. 2차 사고를 막기 위해 비상등을 켜고 안전 삼각대를 설치합니다.  
-    2. 의식/호흡/출혈 여부를 확인합니다.  
-    3. 부상자가 심하면 **즉시 119 신고**하세요.  
-    """)
-
-elif situation == "🏃 도난 / 강도":
-    st.warning("🕵️‍♂️ 안전이 최우선입니다.")
-    st.markdown("""
-    1. 범인과 마주치지 말고 안전한 장소로 이동하세요.  
-    2. 목격한 사실을 **112에 신고**하세요.  
-    3. 가능하다면 범인의 인상착의, 도주 방향 등을 기억하세요.  
-    """)
-
-elif situation == "👊 폭행 목격":
-    st.warning("👮 폭행은 즉시 신고가 필요합니다.")
-    st.markdown("""
-    1. 직접 개입하지 말고 **112에 신고**하세요.  
-    2. 안전한 거리에서 목격한 상황을 기록하세요.  
-    3. 피해자가 안전한지 확인하고 필요하면 구급차를 부르세요.  
-    """)
-
-elif situation == "😷 호흡 곤란":
-    st.warning("🚑 호흡 곤란 시 즉시 응급조치가 필요합니다.")
-    st.markdown("""
-    1. 환자를 편안하게 앉힌 상태로 도와주세요.  
-    2. 호흡이 심하면 **즉시 119 신고**하세요.  
-    3. 기저 질환(천식, 알레르기 등)이 있다면 응급약 사용을 돕습니다.  
-    """)
-
-elif situation == "🏠 가스 누출":
-    st.warning("💨 가스 냄새가 나면 즉시 대피하세요!")
-    st.markdown("""
-    1. 불꽃, 전기 스위치를 절대 켜지 마세요.  
-    2. 창문을 열어 환기시키며 신속히 밖으로 대피하세요.  
-    3. 안전한 장소에서 **119에 신고**하세요.  
-    """)
-
-elif situation == "🐶 동물에 물림":
-    st.warning("🐕 동물에 물렸을 때는 상처 관리가 중요합니다.")
-    st.markdown("""
-    1. 상처를 깨끗한 물로 10분 이상 세척합니다.  
-    2. 소독 후 출혈이 심하면 압박 지혈을 합니다.  
-    3. 광견병 예방 접종 여부에 따라 **병원 진료**가 필요합니다.  
-    """)
-
-st.info("⚠️ 이 앱은 교육용이며, 실제 상황에서는 즉시 119 또는 112에 신고하세요!")
